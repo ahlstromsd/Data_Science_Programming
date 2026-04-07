@@ -4050,10 +4050,6 @@ vertical-align: -.125em;
     <a class="nav-link" href="../full_stack.html"> 
 <span class="menu-text">Full Stack</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../competition.html"> 
-<span class="menu-text">Competitions</span></a>
-  </li>  
 </ul>
           </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
@@ -4158,7 +4154,7 @@ vertical-align: -.125em;
   <li><a href="#question-2" id="toc-question-2">QUESTION 2</a></li>
   </ul>
 </nav>
-<div id="b0b1daed" class="cell" data-execution_count="1">
+<div id="4deaa747" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Show the code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> polars <span class="im">as</span> pl</span>
@@ -4169,7 +4165,7 @@ vertical-align: -.125em;
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>LetsPlot.setup_html(isolated_frame<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<div id="bf8c1a5f" class="cell" data-execution_count="2">
+<div id="97331368" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Show the code</summary>
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Learn morea about Code Cells: https://quarto.org/docs/reference/cells/cells-jupyter.html</span></span>
@@ -4186,7 +4182,7 @@ vertical-align: -.125em;
 <li>Identify the top 10 players with the longest Major League Baseball careers. Include their playerID, first_name, last_name, career_length</li>
 </ol>
 <p><em>Nick Altrock holds the longest career in this dataset at 35 years. This is a unique case in baseball history, as he had a long gap between his primary pitching years and several hitting appearances later on. Nolan Ryan appears in the top 10 as well, with a 27 year career, showing his status as one of the most durable players in the sport. Only 4 players exceed the 30 year mark, showing how rare that longevity is in professional sports.</em></p>
-<div id="f1fd0ff1" class="cell" data-execution_count="3">
+<div id="1602b93f" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Show the code</summary>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>people <span class="op">=</span> pl.read_database(<span class="st">&quot;SELECT playerID, nameFirst, nameLast, debut, finalGame FROM people&quot;</span>, con)</span>
@@ -4240,7 +4236,7 @@ vertical-align: -.125em;
 <li>Write an SQL query that pulls the tables you need into a polars dataframe. Then, use python polars to create a summary table showing the average salary for each position (e.g., pitcher, catcher, outfielder). Position information can be found in the fielding table in the POS column. Include the following columns: position, average_salary, total_players, highest_salary. The highest_salary column should display the highest salary ever earned by a player in that position. Additionally, add a new column to the summary table you just created to label the average salary: if the average salary is above $3 million, categorize it as “High Salary”; if the average salary is between $2 million and $3 million, categorize it as “Medium Salary”; otherwise, categorize it as “Low Salary.” Order the table by average salary in descending order.</li>
 </ol>
 <p><em>The “High Salary” position is first base, which stands out as the highest paid position on average at roughly $3.3 million. While pitchers have one of the highest individual salaries ever earned ($33M), their average salary is only $1.9M due to the volume of players in that position. Catchers have one of the lowest average salaries at $1.4M due to their iffensive production being lower than infielders or outfielders, and it usually has a high physical toll on them leading to shorter careers. The “Medium Salary” bracket includes mainly outfielders, third basemen, and shortstops, all averaging between $2M-$3M.</em></p>
-<div id="2684dbfa" class="cell" data-execution_count="4">
+<div id="b01ac43f" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Show the code</summary>
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>fielding <span class="op">=</span> pl.read_database(<span class="st">&quot;SELECT playerID, yearID, POS, G FROM fielding&quot;</span>, con)</span>
@@ -4768,7 +4764,7 @@ vertical-align: -.125em;
 <footer class="footer">
   <div class="nav-footer">
     <div class="nav-footer-left">
-<p>Your_Name 2024©</p>
+<p>Sydney_Ahlstrom_Sanders 2026©</p>
 </div>   
     <div class="nav-footer-center">
        
@@ -4776,7 +4772,7 @@ vertical-align: -.125em;
     <div class="nav-footer-right">
       <ul class="footer-items list-unstyled">
     <li class="nav-item compact">
-    <a class="nav-link" href="../Your_LinkedIn_URL">
+    <a class="nav-link" href="https://www.linkedin.com/in/sydney-ahlstrom-sanders">
       <i class="bi bi-linkedin" role="img">
 </i> 
     </a>

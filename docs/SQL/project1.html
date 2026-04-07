@@ -4055,10 +4055,6 @@ vertical-align: -.125em;
     <a class="nav-link" href="../full_stack.html"> 
 <span class="menu-text">Full Stack</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../competition.html"> 
-<span class="menu-text">Competitions</span></a>
-  </li>  
 </ul>
           </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
@@ -4136,7 +4132,7 @@ vertical-align: -.125em;
         <li class="px-0"><hr class="sidebar-divider hi "></li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../SQL/project4.qmd" class="sidebar-item-text sidebar-link">
+  <a href="../SQL/project4.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Project 4</span></a>
   </div>
 </li>
@@ -4163,7 +4159,7 @@ vertical-align: -.125em;
   <li><a href="#question-2" id="toc-question-2">QUESTION 2</a></li>
   </ul>
 </nav>
-<div id="5f5f964c" class="cell" data-execution_count="1">
+<div id="dadba498" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Show the code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> polars <span class="im">as</span> pl</span>
@@ -4174,7 +4170,7 @@ vertical-align: -.125em;
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>LetsPlot.setup_html(isolated_frame<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<div id="257efe26" class="cell" data-execution_count="2">
+<div id="07d7f560" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Show the code</summary>
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Learn morea about Code Cells: https://quarto.org/docs/reference/cells/cells-jupyter.html</span></span>
@@ -4185,7 +4181,7 @@ vertical-align: -.125em;
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>con <span class="op">=</span> sqlite3.<span class="ex">connect</span>(sqlite_file)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<div id="10db57aa" class="cell" data-execution_count="3">
+<div id="4320aa01" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Show the code</summary>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Include and execute your code here</span></span>
@@ -4574,7 +4570,7 @@ white-space: pre-wrap;
 <p><strong>Use the provided code above to read in the batting table. Then, with Python Polars manipulate the ‘results’ dataframe to calculate the number of at bats and the batting average for each year a player played. Filter the data frame to only include players with at least 10 at bats that year. Sort the dataframe from highest batting average to lowest, and then by playerid alphabetically. Show the top 5 results in your report.</strong></p>
 <p>Note: A batting average is meant to measure how often a player puts the ball in play and gets to base safely. For this task, use a simplified version of batting average defined as the sum of hits (labeled ‘H’) divided by number of at bats (labeled ‘AB’).</p>
 <p><em>By filtering by a minimum of only 10 at-bats, the top results show players who may have technically had the highest batting averages like Nyls Nyman, but may not be the most representative of a player’s overall performance (they may have played only a few games in that season).</em></p>
-<div id="b492f427" class="cell" data-execution_count="4">
+<div id="7b0e3ea9" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Show the code</summary>
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate seasonal stats</span></span>
@@ -4621,7 +4617,7 @@ white-space: pre-wrap;
 <p><strong>Use the provided code above to read in the batting table. Then, with Python Polars manipulate the ‘results’ dataframe to calculate the batting average for each player over their entire career (all years combined). Only include players with at least 100 at bats over their entire career. Sort the dataframe from highest batting average to lowest, and then by playerid alphabetically. Show the top 5 results in your report.</strong></p>
 <p>Note: A batting average is meant to measure how often a player puts the ball in play and gets to base safely. For this task, use a simplified version of batting average defined as the sum of hits (labeled ‘H’) divided by number of at bats (labeled ‘AB’).</p>
 <p><em>If we raise the threshold to 100 at-bats, the leaderboard quickly excludes any “one hit wonders” from the list and starts to show us the truly greatest players. Ty Cobb is at the top of the list with a .366 career average, which is the MLB record for players with significant career longevity.</em></p>
-<div id="74b0ee7b" class="cell" data-execution_count="5">
+<div id="7ecb9fa9" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Show the code</summary>
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate career stats</span></span>
@@ -5134,7 +5130,7 @@ white-space: pre-wrap;
 <footer class="footer">
   <div class="nav-footer">
     <div class="nav-footer-left">
-<p>Your_Name 2024©</p>
+<p>Sydney_Ahlstrom_Sanders 2026©</p>
 </div>   
     <div class="nav-footer-center">
        
@@ -5142,7 +5138,7 @@ white-space: pre-wrap;
     <div class="nav-footer-right">
       <ul class="footer-items list-unstyled">
     <li class="nav-item compact">
-    <a class="nav-link" href="../Your_LinkedIn_URL">
+    <a class="nav-link" href="https://www.linkedin.com/in/sydney-ahlstrom-sanders">
       <i class="bi bi-linkedin" role="img">
 </i> 
     </a>

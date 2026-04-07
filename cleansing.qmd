@@ -1,10 +1,11 @@
 ---
-title: "about me"
-subtitle: "my data science portfolio"
-# use quarto markdown to 
+title: "Data Cleansing Projects"
+listing:
+  contents: Cleansing_Projects
+  type: grid
+  sort: "title"
 ---
 
-# Title 1 Header
-## Title 2 Header
+Before any analysis can happen, data must be refined. These projects demonstrate my ability to handle missing values, outliers, and inconsistent formatting using Python and Polars.
 
 [MarkDown Basics](https://quarto.org/docs/authoring/markdown-basics.html#links-images)

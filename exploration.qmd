@@ -1,10 +1,11 @@
 ---
-title: "about me"
-subtitle: "my data science portfolio"
-# use quarto markdown to 
+title: "Data Exploration"
+listing:
+  contents: Cleansing_Exploration
+  type: grid
+  sort: "title"
 ---
 
-# Title 1 Header
-## Title 2 Header
+This section focuses on Exploratory Data Analysis (EDA). I use `lets_plot` to visualize distributions, correlations, and trends to uncover the "story" within the raw data.
 
 [MarkDown Basics](https://quarto.org/docs/authoring/markdown-basics.html#links-images)

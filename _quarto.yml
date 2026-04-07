@@ -2,19 +2,22 @@ project:
   type: website
   output-dir: docs
 
+execute:
+  freeze: auto
+
 website:
   title: "Sydney Ahlstrom Sanders - Data Science Portfolio"
   favicon: Images/favicon.png
   back-to-top-navigation: true
-  repo-url: https://github.com/username/username.github.io
+  repo-url: https://github.com/ahlstromsd/Data_Science_Programming
   #repo-actions: [issue] #if you want to allow others to report issues on your site uncomment this line
 
   page-footer: 
     border: true
-    left: "Your_Name 2024©"
+    left: "Sydney_Ahlstrom_Sanders 2026©"
     right: 
       - icon: linkedin
-        href: Your_LinkedIn_URL
+        href: https://www.linkedin.com/in/sydney-ahlstrom-sanders
 
   navbar:
     background: primary
@@ -34,8 +37,6 @@ website:
         file: ml.qmd
       - text: "Full Stack"
         file: full_stack.qmd
-      - text: "Competitions"
-        file: competition.qmd
   
   # learn more about navication here https://quarto.org/docs/websites/website-navigation.html
   # comment out any of the sections below to turn off the sidebar
@@ -121,27 +122,11 @@ website:
       style: "docked"
       background: light
       contents:
-        - text: "Full Stack"
+        - text: "Full Stack Overview"
           file: full_stack.qmd
         - text: "---"
-        - text: "Project 1"
+        - text: "Executive Summary - Final Project"
           file: Full_Stack/project1.qmd
-        - text: "---"
-    - title: "Competition"
-      style: "docked"
-      background: light
-      contents:
-        - text: "Competition"
-          file: competition.qmd
-        - text: "---"
-        - text: "Project 1"
-          file: Competition/project1.qmd
-        - text: "---"
-        - text: "Project 2"
-          file: Competition/project2.qmd
-        - text: "---"
-        - text: "Project 3"
-          file: Competition/project3.qmd
         - text: "---"
 
   

@@ -1,10 +1,17 @@
 ---
-title: "about me"
-subtitle: "my data science portfolio"
-# use quarto markdown to 
+title: "Full Stack Development"
+subtitle: "End-to-End Data Solutions"
 ---
 
-# Title 1 Header
-## Title 2 Header
+## Executive Summary: The Complete Pipeline
+
+While the other sections of this portfolio focus on specific technical steps, the **Full Stack** project represents a complete data science lifecycle. This project covers:
+
+* **Ingestion & Cleansing:** Handling raw data sources.
+* **EDA:** Identifying key drivers through visualization.
+* **Modeling:** Implementing machine learning for actionable insights.
+* **Deployment:** Communicating results through a structured executive report.
+
+[**View the Full Executive Summary Report →**](./Full_Stack/project1.qmd)
 
 [MarkDown Basics](https://quarto.org/docs/authoring/markdown-basics.html#links-images)
