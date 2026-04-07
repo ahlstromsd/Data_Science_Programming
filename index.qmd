@@ -4,7 +4,4 @@ subtitle: "Welcome to my data science portfolio!"
 # use quarto markdown to 
 ---
 
-## This portfolio contains projects completed in the Data Science Programming course at Brigham Young University - Idaho.
-### These projects cover a range of topics starting with data cleansing, data exploration, SQL, machine learning, and lastly a full stack development final project. Each section is designed to demonstrate my skills and knowledge in these areas, feel free to take a look around!
-
-[MarkDown Basics](https://quarto.org/docs/authoring/markdown-basics.html#links-images)
+This portfolio contains projects completed in the Data Science Programming course at Brigham Young University - Idaho. These projects cover a range of topics starting with data cleansing, data exploration, SQL, machine learning, and lastly a full stack development final project. Each section is designed to demonstrate my skills and knowledge in these areas, feel free to take a look around!

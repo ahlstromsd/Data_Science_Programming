@@ -7,5 +7,3 @@ listing:
 ---
 
 Before any analysis can happen, data must be refined. These projects demonstrate my ability to handle missing values, outliers, and inconsistent formatting using Python and Polars.
-
-[MarkDown Basics](https://quarto.org/docs/authoring/markdown-basics.html#links-images)

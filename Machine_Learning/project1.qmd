@@ -1,5 +1,5 @@
 ---
-title: "Client Report - Can You Predict That?"
+title: "Can You Predict That?"
 subtitle: "Unit 4 Task 1"
 author: "Sydney Ahlstrom Sanders"
 format:

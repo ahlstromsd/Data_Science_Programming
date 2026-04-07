@@ -1,5 +1,5 @@
 ---
-title: "Client Report - Exploring Names"
+title: "Exploring Names"
 subtitle: "Unit 1 Task 1"
 author: "Sydney Ahlstrom Sanders"
 format:

@@ -1,5 +1,5 @@
 ---
-title: "Client Report - Baseball Database"
+title: "Baseball Database"
 subtitle: "Unit 3 Task 1"
 author: "Sydney Ahlstrom Sanders"
 format:

@@ -1,5 +1,5 @@
 ---
-title: "Client Report - Flights: Column Aggregation"
+title: "Column Aggregation"
 subtitle: "Unit 2 Task 2"
 author: "Sydney Ahlstrom Sanders"
 format:

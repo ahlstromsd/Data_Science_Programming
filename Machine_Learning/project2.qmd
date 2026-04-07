@@ -1,5 +1,5 @@
 ---
-title: "Client Report -How good is it, really?"
+title: "How good is it, really?"
 subtitle: "Unit 4 Task 2"
 author: "Sydney Ahlstrom Sanders"
 format:

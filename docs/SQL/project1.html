@@ -8,7 +8,7 @@
 
 <meta name="author" content="Sydney Ahlstrom Sanders">
 
-<title>Client Report - Baseball Database – Sydney Ahlstrom Sanders - Data Science Portfolio</title>
+<title>Baseball Database – Sydney Ahlstrom Sanders - Data Science Portfolio</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -4077,7 +4077,7 @@ vertical-align: -.125em;
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-page-right">
-      <div class="quarto-title-block"><div><h1 class="title">Client Report - Baseball Database</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> See code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li></ul></div></div>
+      <div class="quarto-title-block"><div><h1 class="title">Baseball Database</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> See code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li></ul></div></div>
             <p class="subtitle lead">Unit 3 Task 1</p>
                       </div>
   </div>
@@ -4159,7 +4159,7 @@ vertical-align: -.125em;
   <li><a href="#question-2" id="toc-question-2">QUESTION 2</a></li>
   </ul>
 </nav>
-<div id="dadba498" class="cell" data-execution_count="1">
+<div id="6f1bd05b" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Show the code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> polars <span class="im">as</span> pl</span>
@@ -4170,7 +4170,7 @@ vertical-align: -.125em;
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>LetsPlot.setup_html(isolated_frame<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<div id="07d7f560" class="cell" data-execution_count="2">
+<div id="f87165b7" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Show the code</summary>
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Learn morea about Code Cells: https://quarto.org/docs/reference/cells/cells-jupyter.html</span></span>
@@ -4181,7 +4181,7 @@ vertical-align: -.125em;
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>con <span class="op">=</span> sqlite3.<span class="ex">connect</span>(sqlite_file)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<div id="4320aa01" class="cell" data-execution_count="3">
+<div id="cba69c7a" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Show the code</summary>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Include and execute your code here</span></span>
@@ -4570,7 +4570,7 @@ white-space: pre-wrap;
 <p><strong>Use the provided code above to read in the batting table. Then, with Python Polars manipulate the ‘results’ dataframe to calculate the number of at bats and the batting average for each year a player played. Filter the data frame to only include players with at least 10 at bats that year. Sort the dataframe from highest batting average to lowest, and then by playerid alphabetically. Show the top 5 results in your report.</strong></p>
 <p>Note: A batting average is meant to measure how often a player puts the ball in play and gets to base safely. For this task, use a simplified version of batting average defined as the sum of hits (labeled ‘H’) divided by number of at bats (labeled ‘AB’).</p>
 <p><em>By filtering by a minimum of only 10 at-bats, the top results show players who may have technically had the highest batting averages like Nyls Nyman, but may not be the most representative of a player’s overall performance (they may have played only a few games in that season).</em></p>
-<div id="7b0e3ea9" class="cell" data-execution_count="4">
+<div id="5ca14682" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Show the code</summary>
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate seasonal stats</span></span>
@@ -4617,7 +4617,7 @@ white-space: pre-wrap;
 <p><strong>Use the provided code above to read in the batting table. Then, with Python Polars manipulate the ‘results’ dataframe to calculate the batting average for each player over their entire career (all years combined). Only include players with at least 100 at bats over their entire career. Sort the dataframe from highest batting average to lowest, and then by playerid alphabetically. Show the top 5 results in your report.</strong></p>
 <p>Note: A batting average is meant to measure how often a player puts the ball in play and gets to base safely. For this task, use a simplified version of batting average defined as the sum of hits (labeled ‘H’) divided by number of at bats (labeled ‘AB’).</p>
 <p><em>If we raise the threshold to 100 at-bats, the leaderboard quickly excludes any “one hit wonders” from the list and starts to show us the truly greatest players. Ty Cobb is at the top of the list with a .366 career average, which is the MLB record for players with significant career longevity.</em></p>
-<div id="7ecb9fa9" class="cell" data-execution_count="5">
+<div id="df878442" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Show the code</summary>
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate career stats</span></span>

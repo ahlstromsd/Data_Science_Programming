@@ -7,5 +7,3 @@ listing:
 ---
 
 Welcome to my SQL portfolio. Below you can find my latest work with relational databases.
-
-[MarkDown Basics](https://quarto.org/docs/authoring/markdown-basics.html#links-images)

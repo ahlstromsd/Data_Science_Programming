@@ -1,5 +1,5 @@
 ---
-title: "Client Report - Joins"
+title: "Joins"
 subtitle: "Unit 3 Task 3"
 author: "Sydney Ahlstrom Sanders"
 format:

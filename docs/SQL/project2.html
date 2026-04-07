@@ -8,7 +8,7 @@
 
 <meta name="author" content="Sydney Ahlstrom Sanders">
 
-<title>Client Report - Baseball Database SQL Query – Sydney Ahlstrom Sanders - Data Science Portfolio</title>
+<title>Baseball SQL Query – Sydney Ahlstrom Sanders - Data Science Portfolio</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -4077,7 +4077,7 @@ vertical-align: -.125em;
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-page-right">
-      <div class="quarto-title-block"><div><h1 class="title">Client Report - Baseball Database SQL Query</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> See code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li></ul></div></div>
+      <div class="quarto-title-block"><div><h1 class="title">Baseball SQL Query</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> See code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li></ul></div></div>
             <p class="subtitle lead">Unit 3 Task 2</p>
                       </div>
   </div>
@@ -4160,7 +4160,7 @@ vertical-align: -.125em;
   <li><a href="#question-3" id="toc-question-3">QUESTION 3</a></li>
   </ul>
 </nav>
-<div id="afc357a1" class="cell" data-execution_count="1">
+<div id="96da32bb" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Show the code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> polars <span class="im">as</span> pl</span>
@@ -4171,7 +4171,7 @@ vertical-align: -.125em;
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>LetsPlot.setup_html(isolated_frame<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<div id="81607c7e" class="cell" data-execution_count="2">
+<div id="b9f9b29c" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Show the code</summary>
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Learn morea about Code Cells: https://quarto.org/docs/reference/cells/cells-jupyter.html</span></span>
@@ -4186,7 +4186,7 @@ vertical-align: -.125em;
 <h2 class="anchored" data-anchor-id="question-1">QUESTION 1</h2>
 <p><strong>Write an SQL query that provides playerID, yearID, and batting average for players with at least 1 at bat that year. Sort the table from highest batting average to lowest, and then by playerid alphabetically. Show the top 5 results in your report.</strong></p>
 <p><strong>When the minimum requirement is set to just one at-bat, the results show players who may have had a “perfect” batting average in a single season but only went to bat one time that year. This can be misleading since it doesn’t reflect their overall performance over multiple seasons.</strong></p>
-<div id="54bea855" class="cell" data-execution_count="3">
+<div id="534d15c0" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Show the code</summary>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Include and execute your code here</span></span>
@@ -4265,7 +4265,7 @@ white-space: pre-wrap;
 <h2 class="anchored" data-anchor-id="question-2">QUESTION 2</h2>
 <p><strong>Use the same query as above, but only include players with at least 10 at bats that year. Print the top 5 results.</strong></p>
 <p><em>Increasing the threshold to 10 at-bats at least gets rid of the so called “perfect” batters, but still doesn’t show us the most representative players over their entire careers. Nyls Nyman had a .643 average over one season, but only batted a few times that year, so despite his high average, it doesn’t show his overall performance.</em></p>
-<div id="24377fb4" class="cell" data-execution_count="4">
+<div id="93b76f70" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Show the code</summary>
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>q2 <span class="op">=</span> <span class="st">&quot;&quot;&quot;</span></span>
@@ -4339,7 +4339,7 @@ white-space: pre-wrap;
 <h2 class="anchored" data-anchor-id="question-3">QUESTION 3</h2>
 <p><strong>Now modify the SQL query to calculate the batting average for players over their entire careers (all years combined). Only include players with at least 100 at bats over their entire career, and print the top 5 results.</strong></p>
 <p><em>Raising our minimum threshold to 100 at bats over a player’s entire career helps us filter out players who may have had a few great seasons but didn’t play enough games overall to be considered truly representative. It instead shows us the most consistent performers over their entire careers, like Ty Cobb’s record .366 average over his career.</em></p>
-<div id="ca11db07" class="cell" data-execution_count="5">
+<div id="b930ba70" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Show the code</summary>
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>q3 <span class="op">=</span> <span class="st">&quot;&quot;&quot;</span></span>

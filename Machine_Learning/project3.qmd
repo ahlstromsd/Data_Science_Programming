@@ -1,5 +1,5 @@
 ---
-title: "Client Report - Show me!"
+title: "Show me!"
 subtitle: "Unit 4 Task 3"
 author: "Sydney Ahlstrom Sanders"
 format:

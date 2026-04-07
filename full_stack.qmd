@@ -13,5 +13,3 @@ While the other sections of this portfolio focus on specific technical steps, th
 * **Deployment:** Communicating results through a structured executive report.
 
 [**View the Full Executive Summary Report →**](./Full_Stack/project1.qmd)
-
-[MarkDown Basics](https://quarto.org/docs/authoring/markdown-basics.html#links-images)

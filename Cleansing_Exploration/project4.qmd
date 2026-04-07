@@ -1,5 +1,5 @@
 ---
-title: "What's in a Name?"
+title: "Elliot Chart Challenge"
 subtitle: "Unit 1 Stretch Challenge"
 author: "Sydney Ahlstrom Sanders"
 format:

@@ -1,5 +1,5 @@
 ---
-title: "Comparing Delay Types"
+title: "Data Comparison Challenge"
 subtitle: "Unit 2 Stretch Challenge"
 author: "Sydney Ahlstrom Sanders"
 format:

@@ -1,5 +1,5 @@
 ---
-title: "Client Report - Missing values"
+title: "Missing values"
 subtitle: "Unit 2 Task 3"
 author: "Sydney Ahlstrom Sanders"
 format:

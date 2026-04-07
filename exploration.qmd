@@ -7,5 +7,3 @@ listing:
 ---
 
 This section focuses on Exploratory Data Analysis (EDA). I use `lets_plot` to visualize distributions, correlations, and trends to uncover the "story" within the raw data.
-
-[MarkDown Basics](https://quarto.org/docs/authoring/markdown-basics.html#links-images)

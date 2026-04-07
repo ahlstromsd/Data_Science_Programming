@@ -12,18 +12,18 @@
     "listing": "/ml.html",
     "items": [
       "/Machine_Learning/project1.html",
-      "/Machine_Learning/project3.html",
       "/Machine_Learning/project2.html",
-      "/Machine_Learning/project4.html"
+      "/Machine_Learning/project4.html",
+      "/Machine_Learning/project3.html"
     ]
   },
   {
     "listing": "/exploration.html",
     "items": [
+      "/Cleansing_Exploration/project4.html",
       "/Cleansing_Exploration/project1.html",
       "/Cleansing_Exploration/project3.html",
-      "/Cleansing_Exploration/project2.html",
-      "/Cleansing_Exploration/project4.html"
+      "/Cleansing_Exploration/project2.html"
     ]
   },
   {
@@ -31,8 +31,8 @@
     "items": [
       "/Cleansing_Projects/project2.html",
       "/Cleansing_Projects/project1.html",
-      "/Cleansing_Projects/project3.html",
-      "/Cleansing_Projects/project4.html"
+      "/Cleansing_Projects/project4.html",
+      "/Cleansing_Projects/project3.html"
     ]
   }
 ]

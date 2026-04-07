@@ -1,5 +1,5 @@
 ---
-title: "Client Report - What's in a Name?"
+title: "What's in a Name?"
 subtitle: "Unit 1 Task 2"
 author: "Sydney Ahlstrom Sanders"
 format:

@@ -1,6 +1,6 @@
 ---
-title: "Client Report - Star Wars for Dummies"
-subtitle: "Unit 5 FullProject"
+title: "Star Wars for Dummies"
+subtitle: "Unit 5 Full Project"
 author: "Sydney Ahlstrom Sanders"
 format:
   html:
