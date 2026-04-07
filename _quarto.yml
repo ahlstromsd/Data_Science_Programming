@@ -3,7 +3,7 @@ project:
   output-dir: docs
 
 website:
-  title: "Your_Name - Data Science Portfolio"
+  title: "Sydney Ahlstrom Sanders - Data Science Portfolio"
   favicon: Images/favicon.png
   back-to-top-navigation: true
   repo-url: https://github.com/username/username.github.io
@@ -28,8 +28,8 @@ website:
         file: cleansing.qmd
       - text: "Data Exploration"
         file: exploration.qmd
-      - text: "Story Telling"
-        file: story_telling.qmd
+      - text: "SQL"
+        file: sql.qmd
       - text: "Machine Learning"
         file: ml.qmd
       - text: "Full Stack"
@@ -57,6 +57,9 @@ website:
         - text: "Project 3"
           file: Cleansing_Projects/project3.qmd
         - text: "---"
+        - text: "Project 4"
+          file: Cleansing_Projects/project4.qmd
+        - text: "---"
     - title: "Data Exploration"
       style: "docked"
       background: light
@@ -73,21 +76,27 @@ website:
         - text: "Project 3"
           file: Cleansing_Exploration/project3.qmd
         - text: "---"
-    - title: "Story Telling"
+        - text: "Project 4"
+          file: Cleansing_Exploration/project4.qmd
+        - text: "---"
+    - title: "SQL"
       style: "docked"
       background: light
       contents:
-        - text: "Story Telling"
-          file: story_telling.qmd
+        - text: "SQL"
+          file: sql.qmd
         - text: "---"
         - text: "Project 1"
-          file: Story_Telling/project1.qmd
+          file: SQL/project1.qmd
         - text: "---"
         - text: "Project 2"
-          file: Story_Telling/project2.qmd
+          file: SQL/project2.qmd
         - text: "---"
         - text: "Project 3"
-          file: Story_Telling/project3.qmd
+          file: SQL/project3.qmd
+        - text: "---"
+        - text: "Project 4"
+          file: SQL/project4.qmd
         - text: "---"
     - title: "Machine Learning"
       style: "docked"
@@ -105,6 +114,9 @@ website:
         - text: "Project 3"
           file: Machine_Learning/project3.qmd
         - text: "---"
+        - text: "Project 4"
+          file: Machine_Learning/project4.qmd
+        - text: "---"
     - title: "Full Stack"
       style: "docked"
       background: light
@@ -114,9 +126,6 @@ website:
         - text: "---"
         - text: "Project 1"
           file: Full_Stack/project1.qmd
-        - text: "---"
-        - text: "Project 2"
-          file: Full_Stack/project2.qmd
         - text: "---"
     - title: "Competition"
       style: "docked"

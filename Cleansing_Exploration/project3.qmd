@@ -1,7 +1,7 @@
 ---
-title: "Client Report - [Insert Project Title]"
-subtitle: "Course DS 250"
-author: "[STUDENT NAME]"
+title: "Client Report - Famous Names"
+subtitle: "Unit 1 Task 3"
+author: "Sydney Ahlstrom Sanders"
 format:
   html:
     self-contained: true
@@ -25,4 +25,149 @@ execute:
     
 ---
 
-### Paste in a template
+```{python}
+import polars as pl
+import numpy as np
+from lets_plot import *
+
+LetsPlot.setup_html(isolated_frame=True)
+```
+
+```{python}
+# Learn morea about Code Cells: https://quarto.org/docs/reference/cells/cells-jupyter.html
+
+# Include and execute your code here
+df = pl.read_csv("https://posit.byui.edu/content/0d43d66f-d3b7-4c43-8c36-52e3ed69e7f1/names_year_csv.csv")
+```
+
+
+
+## QUESTION 1
+
+<!-- Make sure at least one of your charts includes reference marks!! -->
+
+__Make a new column that represents the total number of babies with your name for only those states in which you have lived. (If you have only ever lived in one state, pick at least one other state so you get practice summing across columns). Make a graph displaying that total for your name over time.__
+
+_The name Sydney reached its peak in all the states I've lived previously (CO, WA, WV, ID, UT, NE) in 2000, but it was still almost as popular in 2001, when I was born. Roughly 750 babies total in the six states I've lived were named Sydney in 2001. Prior to 1980, the name had little to no popularity, and since its height it has dwindled off again in all six states to only around a hundred born total yearly._
+
+```{python}
+# Q1
+my_name = "Sydney"
+my_states = ['UT', 'WA', 'NE', 'WV', 'CO', 'ID'] 
+
+# Filter for my name and create a column summing the states
+q1_data = (df
+    .filter(pl.col('name') == my_name)
+    .with_columns(
+        (pl.col('WA') + pl.col('CO') + pl.col('ID') + pl.col('UT') + pl.col('WV') + pl.col('NE')).alias('my_states_total')
+    )
+    .select(['year', 'my_states_total'])
+    .group_by('year')
+    .sum()
+    .sort('year')
+    .with_columns(pl.col('year').cast(pl.Int64))
+)
+
+# Get birth year value for reference mark
+birth_year = 2001
+birth_year_value = q1_data.filter(pl.col('year') == birth_year)['my_states_total'][0]
+
+# Create chart
+(
+    ggplot(q1_data, aes(x='year', y='my_states_total')) +
+    geom_line(color='#1f77b4', size=1) +
+    geom_vline(xintercept=birth_year, linetype='dashed', color='red', size=1) +
+    geom_point(x=birth_year, y=birth_year_value, color='red', size=3) +
+    ggtitle(f"Usage of Name '{my_name}' in States I've lived over time") +
+    xlab("Year") +
+    ylab("Number of Babies Named") +
+    scale_x_continuous(format='d')
+)
+```
+
+
+## QUESTION 2
+
+1. __Let's look at a name that is special for members of the church: Brigham. For each year, calculate what proportion of babies named Brigham were born in Idaho and Utah? Make a graph displaying the proportion over time.__  
+
+_The graph shows that in the early years of the dataset, 100% of babies named Brigham were born in Idaho and Utah, though the absolute numbers were very small during this period. This makes sense as the name Brigham (after Brigham Young, the second president of the LDS Church) was primarily used within the Mormon community concentrated in these states. As the name gained wider usage across the country, the proportion dropped significantly, reaching a low point around 1970-1980 where only about 40% of babies named Brigham were born in Idaho and Utah. In recent years, the proportion has stabilized around 45-50% born in Utah or Idaho._
+
+```{python}
+# Q2
+# Filter for the name Brigham
+brigham_data = (df
+    .filter(pl.col('name') == 'Brigham')
+    .with_columns(
+        # Calculate ID + UT total
+        (pl.col('ID') + pl.col('UT')).alias('id_ut_total'),
+        # Calculate proportion
+        ((pl.col('ID') + pl.col('UT')) / pl.col('Total')).alias('id_ut_proportion')
+    )
+    .select(['year', 'id_ut_proportion'])
+    .group_by('year')
+    .agg(pl.col('id_ut_proportion').mean())
+    .sort('year')
+    .with_columns(pl.col('year').cast(pl.Int64))
+)
+
+# Create chart
+(
+    ggplot(brigham_data, aes(x='year', y='id_ut_proportion')) +
+    geom_line(color='#2ca02c', size=1) +
+    geom_hline(yintercept=0.5, linetype='dashed', color='gray', size=0.8) +
+    ggtitle("Proportion of Babies Named 'Brigham' Born in Idaho and Utah") +
+    xlab("Year") +
+    ylab("Proportion (ID + UT / Total)") +
+    scale_x_continuous(format='d')
+)
+```
+
+<!-- Make sure at least one of your charts includes reference marks!! -->
+
+## QUESTION 3
+
+1. __Consider doing some data validation. For the name David, calculate a sum of all 50 states and District of Columbia for each year. Now compare that total to the value in the 'Total' column. In which years, if any, do they not agree?__
+
+_There were no years where the name David's total in the Total column didn't match the calculated totals of all states._
+
+```{python}
+# Q3
+# Get all state columns (everything except name, year, and Total)
+state_columns = [col for col in df.columns if col not in ['name', 'year', 'Total']]
+
+# Filter for David and calculate state sum
+david_data = (df
+    .filter(pl.col('name') == 'David')
+    .with_columns(
+        # Sum all state columns
+        pl.sum_horizontal(state_columns).alias('state_sum')
+    )
+    .select(['year', 'Total', 'state_sum'])
+    .with_columns(
+        # Calculate difference
+        (pl.col('Total') - pl.col('state_sum')).alias('difference')
+    )
+    .sort('year')
+)
+
+# Find years where they don't match (allow small rounding differences)
+mismatched_years = david_data.filter(pl.col('difference').abs() > 0.1)
+
+# Display the mismatched years
+print("Years where state sum does not equal Total column:")
+print(mismatched_years)
+
+# Create visualization of the difference over time
+plot_data = david_data.with_columns(pl.col('year').cast(pl.Int64))
+
+(
+    ggplot(plot_data, aes(x='year', y='difference')) +
+    geom_line(color='#d62728', size=1) +
+    geom_hline(yintercept=0, linetype='dashed', color='black', size=0.8) +
+    ggtitle("Difference Between Total Column and State Sum for Name 'David'") +
+    xlab("Year") +
+    ylab("Difference (Total - State Sum)") +
+    scale_x_continuous(format='d')
+)
+
+```

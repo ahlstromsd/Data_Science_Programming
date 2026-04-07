@@ -1,7 +1,7 @@
 ---
-title: "Client Report - [Insert Project Title]"
-subtitle: "Course DS 250"
-author: "[STUDENT NAME]"
+title: "Client Report - Star Wars for Dummies"
+subtitle: "Unit 5 FullProject"
+author: "Sydney Ahlstrom Sanders"
 format:
   html:
     self-contained: true
@@ -25,4 +25,346 @@ execute:
     
 ---
 
-### Paste in a template
+```{python}
+import polars as pl 
+import numpy as np
+from lets_plot import *
+# add the additional libraries you need to import for ML here
+import requests
+import io
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, classification_report
+
+LetsPlot.setup_html(isolated_frame=True)
+```
+
+
+```{python}
+# import your data here using polars and the URL
+sw_url = "https://byuidatascience.github.io/DS250-Course-Polars/Data/StarWars_with_emails.csv"
+
+response = requests.get(sw_url)
+content = response.content.decode('latin1')
+
+start_index = content.find("RespondentID")
+clean_content = content[start_index:]
+
+sw = pl.read_csv(io.BytesIO(clean_content.encode('latin1')), truncate_ragged_lines=True)
+print(sw.columns)
+```
+
+<!-- Rather than a simple write up like we have been doing so far, this project requires a more structured approach. You will need to show you have completed the tasks, but will structure the report in a way that is more like a client report. The report will be structured as follows:
+
+ - Executive Summary: This is a high level overview of the analysis, including the problem statement, the data used, and the main findings. It should be concise and to the point, summarizing the key insights/recommendations without going into too much detail. These are usually bullet points, no graphs. PLEASE EXPLICITLY STATE IN THIS SECTION WHETHER YOU DID THE STRETCH OR NOT! 
+ - Methods: this is a high level overview of the methods used in the analysis. This should include an explanation of data preparation steps, especially how you dealt with each categorical variable and why. Showing the resulting or original distribution of variables may be helpful. Describe how you handled missing values and outliers. How did/might your decisions impact results?Explain any feature engineering steps you took. This is also where you will put the graphs you recreated to show you validated the dataset and that it matches the article.
+ - Results: this is a more in-depth explanation of results. A classification report and feature importance graphs belong here.
+ - Conclusion: this is where you will discuss the implication of the results, including any limitations of the analysis, and recommendations for actions/future work. It may feel repetitive to the executive summary, but it should be more detailed and include any additional insights you gained from the analysis. -->
+
+## Executive Summary
+
+_The objective of this analysis was to process survey data from FiveThirtyEight regarding Star Wars fans to help enable targeted marketing and predictive modeling. I was asked to clean the dataset, extract any meaningful information, and build a model to predict high-income respondents. The results confirm that Star Wars survey data is a reliable source for behavioral insights. My recommendations would be to use the extracted names for Star Wars Day promotions, and to focus high income marketing efforts on the demographics that are identified in the feature importance results with the highest scores._
+
+_Data Preparation: I successfully cleaned the "messy" survey dataset, extracting respondent names from email addresses and mapping categorical preferences to numeric scales for easier understanding._
+
+_Machine Learning: I developed a Random Forest model to predict if a respondent earns at least $50,000 annually. The model achieved an accuracy of approximately 59.88%, identifying age and level of education as the most significant predictors of income (followed by their opinion on Jar Jar Binks)._
+
+_STRETCH CHALLENGE: Yes, the stretch challenge was completed by recreating two of the original chart visualizations from the article and showing that the data used here matches the original findings, validating the dataset._
+
+## Methods
+
+### Task 1
+_The raw data contained metadata before the headers, which I bypassed using find RespondentID and io.BytesIO. To assist the marketing team, I used Regex to parse the email column into first name, last name, and a standardized lowercase email domain. As required, there is a table below showing the number of times each email domain is used among the respondents._
+
+```{python}
+sw_cleaned = sw.with_columns(
+    name_part = pl.col("email").str.extract(r"^([^@]+)"),
+    email_domain = pl.col("email").str.extract(r"@([^.]+)").str.to_lowercase().str.strip_chars()
+).with_columns(
+    # FIRST NAME
+    first_name = pl.when(pl.col("name_part").str.contains(r"\."))
+      .then(pl.col("name_part").str.extract(r"^([^.]+)"))
+      .when(pl.col("name_part").str.contains(r"_"))
+      .then(pl.col("name_part").str.extract(r"_([a-zA-Z]+)"))
+      .otherwise(pl.col("name_part").str.extract(r"([a-zA-Z]+)$")),
+                
+    # LAST NAME
+    last_name = pl.when(pl.col("name_part").str.contains(r"\."))
+      .then(pl.col("name_part").str.extract(r"\.([^@]+)"))
+      .when(pl.col("name_part").str.contains(r"_"))
+      .then(pl.col("name_part").str.extract(r"^([a-zA-Z]+)_"))
+      .otherwise(pl.col("name_part").str.extract(r"^([a-zA-Z]+)"))
+)
+
+# Verify
+print("Final Name Extraction")
+print(sw_cleaned.select(["email", "first_name", "last_name", "email_domain"]).head(5))
+```
+
+```{python}
+domain_counts = (
+    sw_cleaned
+    .group_by("email_domain")
+    .len()
+    .sort("len", descending=True)
+)
+
+print("Survey Respondents by Email Domain")
+print(domain_counts)
+```
+
+### Task 2
+_Per the client's request, I filtered the dataset to the 835 respondents who had seen at least one film by checking for non-null values across the episode columns. To prepare for machine learning, I converted categorical ranges (Age, Education, Income, and Favorability) into numeric scales from 1-5 other than age which is 1-4._
+
+```{python}
+sw_filtered = sw_cleaned.filter(
+    pl.any_horizontal(pl.col("^seen_episode_.*$").is_not_null())
+)
+
+print(f"Filtered rows: {sw_filtered.height}")
+```
+
+```{python}
+# 1. Age Mapping
+age_map = {
+    "18-29": 1,
+    "30-44": 2,
+    "45-60": 3,
+    "> 60": 4
+}
+
+# 2. Education Mapping
+edu_map = {
+    "Less than high school degree": 1,
+    "High school degree": 2,
+    "Some college or Associate degree": 3,
+    "Bachelor degree": 4,
+    "Graduate degree": 5
+}
+
+# 3. Income Mapping
+income_map = {
+    "$0 - $24,999": 1,
+    "$25,000 - $49,999": 2,
+    "$50,000 - $99,999": 3,
+    "$100,000 - $149,999": 4,
+    "$150,000+": 5
+}
+
+# 4. Favorability Mapping
+fav_map = {
+    "Very unfavorably": 1,
+    "Somewhat unfavorably": 2,
+    "Neither favorably nor unfavorably (neutral)": 3,
+    "Unfamiliar (please leave blank)": 3, # Treating unfamiliar as neutral
+    "Somewhat favorably": 4,
+    "Very favorably": 5
+}
+
+# Apply mappings and remove original columns
+sw_ml = sw_filtered.with_columns([
+    pl.col("age").replace_strict(age_map, default=None).cast(pl.Int64).alias("age_num"),
+    pl.col("education").replace_strict(edu_map, default=None).cast(pl.Int64).alias("edu_num"),
+    pl.col("household_income").replace_strict(income_map, default=None).cast(pl.Int64).alias("income_num"),
+    
+    pl.col(["han_solo", "luke_skywalker", "princess_leia_organa", "anakin_skywalker", 
+            "obi_wan_kenobi", "emperor_palpatine", "darth_vader", "lando_calrissian", 
+            "boba_fett", "C_3PO", "R2_D2", "jar_jar_binks", "padme_amidala", "yoda"])
+      .replace_strict(fav_map, default=None).cast(pl.Int64)
+]).drop(["age", "education", "household_income"])
+
+# Preview
+print(sw_ml.select(["age_num", "edu_num", "income_num", "yoda", "han_solo"]).head())
+```
+
+```{python}
+# Validation table to show the mapping worked
+validation_table = (
+    sw_ml.select([
+        "first_name", 
+        "age_num", 
+        "edu_num", 
+        "income_num", 
+        "han_solo", 
+        "yoda"
+    ]).head(10)
+)
+
+print("Final Data Excerpt")
+print(validation_table)
+```
+
+### Task 3
+_I finalized the data by dropping identifiers (Name, Email, RespondentID) and applying One-Hot Encoding to remaining categorical strings. Our target variable was defined as a binary indicator for Household Income $\ge$ $50,000. Essentially this just means I dropped any non-numeric values so the model could be trained appropriately, and then told it what to predict with the data it recieves._
+
+```{python}
+# 1. Create the Target Column
+sw_ml_ready = sw_ml.with_columns(
+  target = pl.when(pl.col("income_num") >= 3).then(1).otherwise(0)
+)
+
+# 2. Drop identifiers and original target source
+cols_to_drop = ["RespondentID", "first_name", "last_name", "email", "name_part", "income_num"]
+sw_ml_ready = sw_ml_ready.drop(cols_to_drop)
+
+# 3. One-Hot Encode
+sw_final = sw_ml_ready.to_dummies(
+  columns=[col for col, dtype in sw_ml_ready.schema.items() if dtype == pl.String]
+)
+
+# 4. Handle any remaining Nulls
+sw_final = sw_final.fill_null(0)
+
+print(f"Final feature count: {len(sw_final.columns)}")
+```
+
+## Results
+
+### Model Description
+_I utilized a Random Forest Classifier with 100 estimators. This model is ideal for survey data as it captures interactions between features (for example, how Age and Education combined might predict Income) without assuming a linear relationship._
+
+### Model Accuracy
+_The model achieved an accuracy of approximately 59.88%. This model successfully exceeds the client's 55% accuracy threshold. It may seem like a lower score than what is generally hoped for, but when you think about how accurately it is able to predict a person's yearly income based off of their opinions on Star Wars films, it seems like a reasonable, and even impressive performance._
+
+```{python}
+# Separate Features
+X = sw_final.drop("target")
+y = sw_final.select("target")
+
+# Split data
+X_train, X_test, y_train, y_test = train_test_split(
+  X.to_numpy(), 
+  y.to_numpy().ravel(), 
+  test_size=0.2, 
+  random_state=42
+)
+# Initialize and Train
+model = RandomForestClassifier(n_estimators=100, random_state=42)
+model.fit(X_train, y_train)
+
+# Predict and Evaluate
+y_pred = model.predict(X_test)
+accuracy = accuracy_score(y_test, y_pred)
+
+print(f"Model Accuracy: {accuracy:.2%}")
+print("\nClassification Report:")
+print(classification_report(y_test, y_pred))
+```
+
+### Feature Importance
+_The following chart shows which factors were the strongest predictors of a respondent making over $50k. Higher scores indicate greater importance in the model's decision-making process._
+
+```{python}
+feature_importance_df = pl.DataFrame({
+    "feature": X.columns,
+    "importance": model.feature_importances_
+}).sort("importance", descending=True).head(10)
+
+p_importance = (
+  ggplot(feature_importance_df, aes(x=as_discrete('feature', order_by='importance'), y='importance')) +
+  geom_bar(stat='identity', fill='#008fd5') +
+  coord_flip() +
+  labs(
+    title="Top 10 Predictors of Income >= $50k",
+    subtitle="Key factors identifying high-income respondents",
+    x="", 
+    y="Importance Score"
+  ) +
+  theme_minimal()
+)
+
+p_importance.show()
+```
+
+## Data Validation - Stretch Challenge
+
+_To ensure the cleaning didn't compromise the data integrity, I recreated two visuals from the FiveThirtyEight article. This shows that the data matches the original publication. Matching these values also confirms the dataset is ready for predictive modeling._
+
+```{python}
+seen_cols = [f"seen_episode_{i}" for i in ["I", "II", "III", "IV", "V", "VI"]]
+movie_labels = ["The Phantom Menace", "Attack of the Clones", "Revenge of the Sith", "A New Hope", "The Empire Strikes Back", "Return of the Jedi"]
+
+seen_data = (
+    sw_ml.select(seen_cols)
+    .select([(pl.col(c).is_not_null().sum() / 835 * 100).alias(c) for c in seen_cols])
+    .unpivot(variable_name="movie", value_name="pct")
+    .with_columns(
+        movie_title = pl.col("movie").replace(dict(zip(seen_cols, movie_labels)))
+    )
+)
+
+shot_first = (
+    sw_ml.group_by("who_shot_first")
+    .len()
+    .filter(pl.col("who_shot_first").is_not_null())
+    .with_columns(pct = pl.col("len") / pl.col("len").sum() * 100)
+)
+```
+
+```{python}
+seen_data = seen_data.with_columns(
+  pct_label = (pl.col("pct").round(0).cast(pl.Int64).cast(pl.Utf8))
+)
+
+final_movie_order = [
+  "Return of the Jedi", 
+  "The Empire Strikes Back", 
+  "A New Hope", 
+  "Revenge of the Sith", 
+  "Attack of the Clones", 
+  "The Phantom Menace"
+]
+
+p1 = (ggplot(seen_data, aes(x='movie_title', y='pct')) +
+  geom_bar(stat='identity', fill='#008fd5', width=0.45) +
+  geom_text(aes(label='pct_label'), nudge_y=3.5, va="bottom", size=7) +
+  coord_flip() +
+  scale_x_discrete(limits=final_movie_order) + 
+  scale_y_continuous(limits=[0, 105]) +
+  labs(title="Which 'Star Wars' Movies Have You Seen?", subtitle="Of 835 respondents who have seen any film",x="", y="") +
+  theme_minimal() +
+  theme(
+    axis_text_y = element_blank(),
+    axis_ticks_y = element_blank(),
+    panel_grid_major = element_blank(),
+    panel_grid_minor = element_blank(),
+    axis_text_x = element_text(size=14, color='#333333'),
+    plot_title = element_text(face='bold', size=15),
+    plot_subtitle = element_text(size=14, color='#555555'),
+    panel_spacing_y = 0.05,
+  ))
+p1.show()
+```
+
+```{python}
+shot_first = shot_first.with_columns(
+  pct_label = (pl.col("pct").round(0).cast(pl.Int64).cast(pl.Utf8))
+)
+
+final_shot_order = [
+  "I don't understand this question",
+  "Greedo",
+  "Han"
+]
+
+p2 = (ggplot(shot_first, aes(x='who_shot_first', y='pct')) +
+  geom_bar(stat='identity', fill='#008fd5', width=0.40) +
+  geom_text(aes(label='pct_label'), nudge_y=3, hjust=0, size=7) +
+  coord_flip() +
+  scale_x_discrete(limits=final_shot_order) +
+  scale_y_continuous(limits=[0, 55]) +
+  labs(title="Who Shot First?",subtitle="According to 835 Star Wars respondents", x="", y="") +
+  theme_minimal() +
+  theme(
+    axis_text_y = element_blank(),
+    axis_ticks_y = element_blank(),
+    panel_grid_major = element_blank(),
+    panel_grid_minor = element_blank(),
+    axis_text_x = element_text(size=14, color='#333333'),
+    plot_title = element_text(face='bold', size=15.5),
+    plot_subtitle = element_text(size=14, color='#555555'),
+    panel_spacing_y = 0.05,
+  ))
+
+p2.show()
+```

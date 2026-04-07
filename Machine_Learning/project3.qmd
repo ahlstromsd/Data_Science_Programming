@@ -1,7 +1,7 @@
 ---
-title: "Client Report - [Insert Project Title]"
-subtitle: "Course DS 250"
-author: "[STUDENT NAME]"
+title: "Client Report - Show me!"
+subtitle: "Unit 4 Task 3"
+author: "Sydney Ahlstrom Sanders"
 format:
   html:
     self-contained: true
@@ -25,4 +25,95 @@ execute:
     
 ---
 
-### Paste in a template
+```{python}
+import polars as pl
+import numpy as np
+from lets_plot import *
+from sklearn.model_selection import train_test_split
+from sklearn import metrics
+# add the additional libraries you need to import for ML here
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
+from sklearn.inspection import permutation_importance
+import pandas as pd
+LetsPlot.setup_html(isolated_frame=True)
+```
+
+
+```{python}
+# import your data here using polars and the URL
+url = "https://github.com/byuidatascience/data4dwellings/raw/master/data-raw/dwellings_ml/dwellings_ml.csv"
+dwellings = pl.read_csv(url)
+
+print(dwellings.head())
+```
+
+## QUESTION 1
+
+1. __Repeat the classification exercise using 2 different algorithms/models. Explain the differences between the 3 models__ (your original one, and the 2 new ones for this task).
+
+_I compared a Decision Tree, Random Forest, and Gradient Boosting model. The Decision Tree is the simplest baseline and decides things using a single flowchart type of logic, it had the lowest overall accuracy at 90%. The Random Forest improves on this by making a "forest" of decision trees that vote on the final prediciton, reaching 92% accuracy. Gradient Boosting Models build trees sequentially, with each tree trying to correct the errors of the previous ones, often leading to improved performance (almost 93% accuracy in this case)._
+
+```{python}
+# Include and execute your code here
+dwellings = dwellings.with_columns(
+    before1980 = pl.when(pl.col("yrbuilt") < 1980).then(1).otherwise(0)
+)
+
+X = dwellings.drop(["before1980", "before_1980", "yrbuilt", "parcel"], strict=False)
+y = dwellings["before1980"]
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X.to_pandas(), y.to_pandas(), test_size=0.20, random_state=42
+)
+
+
+models = {
+    "Decision Tree": DecisionTreeClassifier(max_depth=10, random_state=42),
+    "Random Forest": RandomForestClassifier(n_estimators=100, max_depth=15, random_state=42),
+    "Gradient Boosting": GradientBoostingClassifier(n_estimators=100, learning_rate=0.1, max_depth=5, random_state=42)
+}
+
+
+for name, model in models.items():
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
+    acc = metrics.accuracy_score(y_test, y_pred)
+    print(f"{name} Accuracy: {acc:.2%}")
+```
+
+
+## QUESTION 2
+
+1. For each model (your original one, and the 2 new ones for this task), display the classification report and the permutation importances for the most important features.  Discuss which model you would recommend to the Client and why.
+
+_The Gradient Boosting model performed the best with the highest accuracy (93%), followed by the Random Forest and then the Decision Tree. I would recommend the Gradient Boosting model to the Client because it provides the most accurate predictions for identifying pre-1980 versus post-1980 housing styles._
+
+```{python}
+# Include and execute your code here
+import polars.selectors as cs
+
+def get_importance_plot(model, name):
+    result = permutation_importance(model, X_test.iloc[:500], y_test.iloc[:500], n_repeats=5, random_state=42)
+    
+    perm_df = pd.DataFrame({
+        'feature': X_test.columns,
+        'importance': result.importances_mean
+    }).sort_values('importance', ascending=False).head(10)
+    
+    return ggplot(perm_df, aes(x='importance', y='feature', fill='importance')) + \
+           geom_bar(stat='identity') + \
+           labs(title=f"Permutation Importance: {name}")
+
+
+for name, model in models.items():
+    print(f"\n" + "="*30)
+    print(f"REPORT FOR: {name}")
+    print("="*30)
+    
+    y_pred = model.predict(X_test)
+    print(metrics.classification_report(y_test, y_pred))
+
+    p = get_importance_plot(model, name)
+    p.show()
+```

@@ -1,7 +1,7 @@
 ---
-title: "Client Report - [Insert Project Title]"
-subtitle: "Course DS 250"
-author: "[STUDENT NAME]"
+title: "Client Report - Can You Predict That?"
+subtitle: "Unit 4 Task 1"
+author: "Sydney Ahlstrom Sanders"
 format:
   html:
     self-contained: true
@@ -24,5 +24,116 @@ execute:
   warning: false
     
 ---
+```{python}
+import sys
+!{sys.executable} -m pip install scikit-learn polars lets-plot pandas
+```
+```{python}
+import sys
+!{sys.executable} -m pip install pyarrow
+```
+```{python}
+import sklearn
+import polars as pl
+print(f"Sklearn version: {sklearn.__version__}")
+print(f"Polars version: {pl.__version__}")
+print(f"Python version: {sys.version}")
+```
 
-### Paste in a template
+```{python}
+import polars as pl
+import numpy as np
+from lets_plot import *
+from sklearn.model_selection import train_test_split
+from sklearn import metrics
+# add the additional libraries you need to import for ML here
+from sklearn.ensemble import RandomForestClassifier
+
+LetsPlot.setup_html(isolated_frame=True)
+
+```
+
+
+```{python}
+# import your data here using polars and the URL
+url = "https://github.com/byuidatascience/data4dwellings/raw/master/data-raw/dwellings_ml/dwellings_ml.csv"
+dwellings = pl.read_csv(url)
+
+print(dwellings.head())
+```
+
+## QUESTION
+
+1. __Take time to get to know your data.__ Based on some initial exploration, identify 3 variables in the dataset you think will have strong predictive ability for determining if a house was built before 1980. Explain/justify the reasoning behind your guesses (for example with plots).
+
+_The three most effective variables I found to use for analysis in my model were one story, living area, and number of bathrooms. I created a few plots to see the differences, and it showed a large concentration of ranch homes built before 1980, and much fewer after that. The living area plot also showed a big increase in living area for homes built after 1980. Older homes also had an average of 2 bathrooms, whereas more modern ones had around 3. Any price category is also a dead giveaway for the year built due to the substantial difference in prices over time, and these categories are what helped me push my model in q2 over 90%._
+
+```{python}
+import polars.selectors as cs
+
+analysis = (
+    dwellings
+    .select(cs.numeric())
+    .group_by("before1980")
+    .agg(pl.all().mean())
+    .transpose(include_header=True, header_name="variable", column_names=["Post_1980", "Pre_1980"])
+)
+
+analysis = analysis.with_columns(
+    diff = (pl.col("Pre_1980") - pl.col("Post_1980")).abs()
+).sort("diff", descending=True)
+
+print("Top Variables by Mean Difference:")
+print(analysis.head(10))
+
+df_plot = dwellings.to_pandas()
+df_plot['before1980_str'] = df_plot['before1980'].astype(str)
+df_plot['one_story_str'] = df_plot['arcstyle_ONE-STORY'].astype(str)
+
+p1 = ggplot(df_plot, aes(x='before1980_str', y='livearea', fill='before1980_str')) + \
+    geom_boxplot() + \
+    labs(x = "Pre-1980 (1) vs Post-1980 (0)", y = "Living Area", title = "Living Area Distribution")
+
+p2 = ggplot(df_plot, aes(x='yrbuilt', fill='one_story_str')) + \
+    geom_density(alpha=0.5) + \
+    geom_vline(xintercept=1980, linetype='dashed', color='red') + \
+    labs(title = "One-Story Homes Over Time", fill = "Is One-Story?")
+
+p1.show()
+p2.show()
+```
+
+2. __Build a classification model labeling houses as being built “before 1980” or “during or after 1980”.__ Your goal is to reach or exceed 90% accuracy. Report your final model choice and any other model parameters you may have tweaked (train-test split ratio, tuning parameters, etc).  
+
+_I used a Random Forest classifier model that reached a 92.86% accuracy. The data was prepared by removing the year built and parcel columns to prevent data leakage, and then used an 80/20 train-test split. Increasing the number of estimators and adjusting the max depth improved the performance, as well as a balaced class weight to account for any distribution imbalances between pre and post 1980 homes._
+
+```{python}
+X = dwellings.drop(["before1980", "before_1980", "yrbuilt", "parcel"], strict=False)
+y = dwellings["before1980"]
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X.to_pandas(), 
+    y.to_pandas(), 
+    test_size=0.20, 
+    random_state=42
+)
+
+rf = RandomForestClassifier(
+    n_estimators=500, 
+    max_depth=20, 
+    min_samples_split=5,
+    random_state=42,
+    class_weight='balanced' 
+)
+
+rf.fit(X_train, y_train)
+
+y_pred = rf.predict(X_test)
+accuracy = metrics.accuracy_score(y_test, y_pred)
+
+print(f"--- Final Model Results ---")
+print(f"Model Accuracy: {accuracy:.2%}")
+print("\nDetailed Performance Matrix:")
+print(metrics.classification_report(y_test, y_pred))
+```
+

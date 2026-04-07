@@ -1,0 +1,126 @@
+---
+title: "Client Report - Baseball Database"
+subtitle: "Unit 3 Task 1"
+author: "Sydney Ahlstrom Sanders"
+format:
+  html:
+    self-contained: true
+    page-layout: full
+    title-block-banner: true
+    toc: true
+    toc-depth: 3
+    toc-location: body
+    number-sections: false
+    html-math-method: katex
+    code-fold: true
+    code-summary: "Show the code"
+    code-overflow: wrap
+    code-copy: hover
+    code-tools:
+        source: false
+        toggle: true
+        caption: See code
+execute: 
+  warning: false
+    
+---
+
+```{python}
+import polars as pl
+import numpy as np
+import sqlite3
+from lets_plot import *
+
+LetsPlot.setup_html(isolated_frame=True)
+```
+
+
+```{python}
+# Learn morea about Code Cells: https://quarto.org/docs/reference/cells/cells-jupyter.html
+
+# Include and execute your code here
+sqlite_file = 'lahmansbaseballdb.sqlite'
+# this file must be in the same location as your .qmd or .py file
+con = sqlite3.connect(sqlite_file)
+```
+
+```{python}
+# Include and execute your code here
+
+# The code below uses some basic SQL code to read in the entire 'batting' table in the database and store it in a polars dataframe called 'results'. You must write polars code to manipulate the results dataframe to address the task.
+
+q = """
+    SELECT *
+    FROM batting
+    """
+results = pl.read_database(q, con, infer_schema_length=None) 
+# What does infer_schema_length = None do?
+results
+```
+
+## QUESTION 1
+
+__Use the provided code above to read in the batting table. Then, with Python Polars manipulate the 'results' dataframe to calculate the number of at bats and the batting average for each year a player played. Filter the data frame to only include players with at least 10 at bats that year. Sort the dataframe from highest batting average to lowest, and then by playerid alphabetically. Show the top 5 results in your report.__
+
+Note: A batting average is meant to measure how often a player puts the ball in play and gets to base safely. For this task, use a simplified version of batting average defined as the sum of hits (labeled 'H') divided by number of at bats (labeled 'AB').
+
+_By filtering by a minimum of only 10 at-bats, the top results show players who may have technically had the highest batting averages like Nyls Nyman, but may not be the most representative of a player's overall performance (they may have played only a few games in that season)._
+
+```{python}
+# Calculate seasonal stats
+q1_results = (
+    results
+    .select(["playerID", "yearID", "H", "AB"])
+    # Group by player and year to handle cases where players moved teams mid-season
+    .group_by(["playerID", "yearID"])
+    .agg([
+        pl.col("H").sum(),
+        pl.col("AB").sum()
+    ])
+    # Filter for at least 10 at bats
+    .filter(pl.col("AB") >= 10)
+    # Calculate Batting Average (BA)
+    .with_columns(
+        (pl.col("H") / pl.col("AB")).alias("batting_avg")
+    )
+    # Sort: BA descending, then playerID ascending
+    .sort(["batting_avg", "playerID"], descending=[True, False])
+    .head(5)
+)
+
+print(q1_results)
+```
+
+
+## QUESTION 2
+
+__Use the provided code above to read in the batting table. Then, with Python Polars manipulate the 'results' dataframe to calculate the batting average for each player over their entire career (all years combined). Only include players with at least 100 at bats over their entire career. Sort the dataframe from highest batting average to lowest, and then by playerid alphabetically. Show the top 5 results in your report.__ 
+
+Note: A batting average is meant to measure how often a player puts the ball in play and gets to base safely. For this task, use a simplified version of batting average defined as the sum of hits (labeled 'H') divided by number of at bats (labeled 'AB').
+
+_If we raise the threshold to 100 at-bats, the leaderboard quickly excludes any "one hit wonders" from the list and starts to show us the truly greatest players. Ty Cobb is at the top of the list with a .366 career average, which is the MLB record for players with significant career longevity._
+
+```{python}
+# Calculate career stats
+q2_results = (
+    results
+    .select(["playerID", "H", "AB"])
+    # Group by player only to combine all years
+    .group_by("playerID")
+    .agg([
+        pl.col("H").sum().alias("career_H"),
+        pl.col("AB").sum().alias("career_AB")
+    ])
+    # Filter for at least 100 career at bats
+    .filter(pl.col("career_AB") >= 100)
+    # Calculate Career Batting Average
+    .with_columns(
+        (pl.col("career_H") / pl.col("career_AB")).alias("career_ba")
+    )
+    # Sort: BA descending, then playerID ascending
+    .sort(["career_ba", "playerID"], descending=[True, False])
+    .head(5)
+)
+
+print(q2_results)
+```

@@ -1,0 +1,123 @@
+---
+title: "Comparing Delay Types"
+subtitle: "Unit 2 Stretch Challenge"
+author: "Sydney Ahlstrom Sanders"
+format:
+  html:
+    self-contained: true
+    page-layout: full
+    title-block-banner: true
+    toc: true
+    toc-depth: 3
+    toc-location: body
+    number-sections: false
+    html-math-method: katex
+    code-fold: true
+    code-summary: "Show the code"
+    code-overflow: wrap
+    code-copy: hover
+    code-tools:
+        source: false
+        toggle: true
+        caption: See code
+execute: 
+  warning: false
+    
+---
+
+```{python}
+import polars as pl
+import requests #new for reading in JSON
+import io       #new for reading in JSON
+import numpy as np
+from lets_plot import *
+
+LetsPlot.setup_html(isolated_frame=True)
+```
+
+
+```{python}
+url = "https://raw.githubusercontent.com/byuidatascience/data4missing/master/data-raw/flights_missing/flights_missing.json"
+response = requests.get(url)
+df = pl.read_json(io.BytesIO(response.content))
+```
+
+## Question 1
+
+1. Which delay is the worst delay? Keep working with the cleaned dataset you created in the previous task. Compare the proportion of flights delayed due to Carrier, to Security, and to Late Aircraft. Show this comparison in a Chart and a Table. Describe your results.
+
+_To determine the worst delay type, I compared the proportion of flights imppacted by three specific categories: carrier, security, and late-arriving aircraft. Based on the calculations and the bar chart, Late Aircraft delays are the most common, followed by Carrier and then Security delays._
+```{python}
+df_clean = df.with_columns([
+    pl.when(pl.col(name).cast(pl.Utf8).is_in(["-999", "1500+", "n/a"]))
+    .then(None)
+    .otherwise(pl.col(name))
+    .alias(name) 
+    for name in df.columns
+])
+
+df_filled = df_clean.with_columns([
+    pl.col("^minutes_delayed.*$").cast(pl.Float64).fill_null(pl.col("^minutes_delayed.*$").cast(pl.Float64).median()),
+    pl.col("^num_of.*$").cast(pl.Float64).fill_null(pl.col("^num_of.*$").cast(pl.Float64).mean())
+])
+
+df_long = df_filled.unpivot(
+    index=["airport_code", "num_of_flights_total"],
+    on=["num_of_delays_carrier", "num_of_delays_late_aircraft", "num_of_delays_security"],
+    variable_name="delay_type",
+    value_name="delay_count"
+)
+
+comparison_table = (
+    df_long.group_by("delay_type")
+    .agg([
+        pl.col("delay_count").sum().alias("total_delays"),
+        (pl.col("delay_count").sum() / pl.col("num_of_flights_total").sum()).alias("proportion")
+    ])
+    .sort("proportion", descending=True)
+)
+
+print(comparison_table)
+
+p1 = (
+    ggplot(comparison_table, aes(x='delay_type', y='proportion', fill='delay_type'))
+    + geom_bar(stat='identity', show_legend=False)
+    + scale_y_continuous(format='.2%')
+    + labs(
+        title="Comparison of Flight Delay Reasons",
+        x="Delay Category",
+        y="Proportion of Total Flights"
+    )
+    + theme_minimal2()
+)
+p1.show()
+```
+
+## Question 2
+
+2. Create another chart that shows the proportion of delays for each reason (Carrier, Security, and Late Aircraft) across all 7 airports. Describe your results.
+
+_When breaking these proportions down by airport, we see that the Late Aircraft delay is the most common across all airports, followed by Carrier and then Security delays. ORD and IAD show some of the highest peaks for late aircraft delays, ans SLC has the lowest proportion of them. Security delays are consistently the lowest across all airports._
+```{python}
+airport_comparison = (
+    df_long.group_by(["airport_code", "delay_type"])
+    .agg([
+        (pl.col("delay_count").sum() / pl.col("num_of_flights_total").sum()).alias("proportion")
+    ])
+)
+
+p2 = (
+    ggplot(airport_comparison, aes(x='delay_type', y='proportion', fill='delay_type'))
+    + geom_bar(stat='identity', show_legend=False)
+    + facet_wrap(facets='airport_code', ncol=4)
+    + scale_y_continuous(format='.1%')
+    + labs(
+        title="Delay Proportions by Airport and Reason",
+        x="Reason for Delay",
+        y="Proportion of Total Flights"
+    )
+    + theme_minimal2()
+    + theme(axis_text_x=element_text(angle=45))
+)
+p2.show()
+```

@@ -1,0 +1,122 @@
+---
+title: "Regression ML"
+subtitle: "Unit 4 Stretch Challenge"
+author: "Sydney Ahlstrom Sanders"
+format:
+  html:
+    self-contained: true
+    page-layout: full
+    title-block-banner: true
+    toc: true
+    toc-depth: 3
+    toc-location: body
+    number-sections: false
+    html-math-method: katex
+    code-fold: true
+    code-summary: "Show the code"
+    code-overflow: wrap
+    code-copy: hover
+    code-tools:
+        source: false
+        toggle: true
+        caption: See code
+execute: 
+  warning: false
+    
+---
+
+```{python}
+import polars as pl
+import numpy as np
+from lets_plot import *
+from sklearn.model_selection import train_test_split
+from sklearn import metrics
+from sklearn.ensemble import GradientBoostingClassifier, GradientBoostingRegressor
+from sklearn.metrics import mean_absolute_error, r2_score, mean_squared_error
+import pandas as pd
+LetsPlot.setup_html(isolated_frame=True)
+```
+
+
+```{python}
+# import your data here using polars and the URL
+url = "https://github.com/byuidatascience/data4dwellings/raw/master/data-raw/dwellings_ml/dwellings_ml.csv"
+dwellings = pl.read_csv(url)
+
+url2 = "https://github.com/byuidatascience/data4dwellings/raw/master/data-raw/dwellings_neighborhoods_ml/dwellings_neighborhoods_ml.csv"
+neighborhoods = pl.read_csv(url2)
+
+print(dwellings.head())
+print(neighborhoods.head())
+```
+
+## QUESTION 1
+
+1. Join the dwellings_neighborhoods_ml.csv data to the dwelling_ml.csv on the parcel column to create a new dataset. Duplicate the code for the model you recommended in the previous taskn above and update it to use this data. Explain the differences and if this changes the model you recomend to the Client.
+
+_Merging the datasets actually improved our accuracy from 92% to 94.71%. The jump suggests that location is a good predictor of home age in Denver. Older neighborhoods often have distinct architectural styles and signatures compared to newer developments. Because the F1 score for identifying pre 1980 homes rose to 96%, I would recommend using this combined model to the client. It shows a more geographically aware screening tool that's less likely to miss older homes in historic districts, and is a better solution for safety assessments._
+
+```{python}
+combined_data = dwellings.join(neighborhoods, on="parcel")
+
+
+combined_data = combined_data.with_columns(
+    before1980 = pl.when(pl.col("yrbuilt") < 1980).then(1).otherwise(0)
+)
+
+
+X = combined_data.drop(["before1980", "before_1980", "yrbuilt", "parcel"], strict=False)
+y = combined_data["before1980"]
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X.to_pandas(), y.to_pandas(), test_size=0.20, random_state=42
+)
+
+
+gbc = GradientBoostingClassifier(n_estimators=100, learning_rate=0.1, max_depth=5, random_state=42)
+gbc.fit(X_train, y_train)
+
+y_pred = gbc.predict(X_test)
+print(f"Accuracy with Neighborhood Data: {metrics.accuracy_score(y_test, y_pred):.2%}")
+print(metrics.classification_report(y_test, y_pred))
+```
+
+## QUESTION 2
+
+2. Can you build a model that predicts the year a house was built? Note this is a regression ML model, not a classifier. Report appropriate evaluation metrics for the model. Explain the model and the evaluation metrics you used to determine if the model is good.
+
+_Mean Absolute Error hovers around 10 years, meaning on average the models predictions are only a decade away from the actual construction date. The Root Mean Squared Error is 15.37 years, which shows that while most predictions are close, there are some outliers where the model is further off, likely due to major renovations to make an old home seem newer. The R-squared score is .83, meaning the model explains 83% of the variance in Denver's housing ages based on physical features and location. Overall, the model follows the scatter plot's "perfect prediction" line relatively closely, showing that the model is performing well._
+
+```{python}
+y_reg = combined_data["yrbuilt"]
+
+
+X_train_r, X_test_r, y_train_r, y_test_r = train_test_split(
+    X.to_pandas(), y_reg.to_pandas(), test_size=0.20, random_state=42
+)
+
+
+gbr = GradientBoostingRegressor(n_estimators=200, max_depth=5, learning_rate=0.1, random_state=42)
+gbr.fit(X_train_r, y_train_r)
+
+
+y_pred_r = gbr.predict(X_test_r)
+
+mae = mean_absolute_error(y_test_r, y_pred_r)
+r2 = r2_score(y_test_r, y_pred_r)
+rmse = np.sqrt(mean_squared_error(y_test_r, y_pred_r))
+
+print(f"--- Regression Model Metrics ---")
+print(f"Mean Absolute Error (MAE): {mae:.2f} years")
+print(f"Root Mean Squared Error (RMSE): {rmse:.2f} years")
+print(f"R-squared Score: {r2:.3f}")
+
+
+results_df = pd.DataFrame({'Actual': y_test_r, 'Predicted': y_pred_r})
+
+ggplot(results_df.sample(500), aes(x='Actual', y='Predicted')) + \
+    geom_point(alpha=0.4, color='darkgreen') + \
+    geom_abline(slope=1, intercept=0, color='red', linetype='dashed') + \
+    labs(title="Regression: Predicted vs. Actual Year Built",
+         subtitle="Red line represents perfect prediction")
+```

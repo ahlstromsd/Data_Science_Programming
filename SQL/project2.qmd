@@ -1,0 +1,118 @@
+---
+title: "Client Report - Baseball Database SQL Query"
+subtitle: "Unit 3 Task 2"
+author: "Sydney Ahlstrom Sanders"
+format:
+  html:
+    self-contained: true
+    page-layout: full
+    title-block-banner: true
+    toc: true
+    toc-depth: 3
+    toc-location: body
+    number-sections: false
+    html-math-method: katex
+    code-fold: true
+    code-summary: "Show the code"
+    code-overflow: wrap
+    code-copy: hover
+    code-tools:
+        source: false
+        toggle: true
+        caption: See code
+execute: 
+  warning: false
+    
+---
+
+
+```{python}
+import polars as pl
+import numpy as np
+import sqlite3
+from lets_plot import *
+
+LetsPlot.setup_html(isolated_frame=True)
+```
+
+
+```{python}
+# Learn morea about Code Cells: https://quarto.org/docs/reference/cells/cells-jupyter.html
+
+# Include and execute your code here
+sqlite_file = 'lahmansbaseballdb.sqlite'
+# this file must be in the same location as your .qmd or .py file
+con = sqlite3.connect(sqlite_file)
+```
+
+## QUESTION 1
+
+__Write an SQL query that provides playerID, yearID, and batting average for players with at least 1 at bat that year. Sort the table from highest batting average to lowest, and then by playerid alphabetically. Show the top 5 results in your report.__
+
+__When the minimum requirement is set to just one at-bat, the results show players who may have had a "perfect" batting average in a single season but only went to bat one time that year. This can be misleading since it doesn't reflect their overall performance over multiple seasons.__
+
+```{python}
+# Include and execute your code here
+
+# The code below can serve as a template for all the rest of your queries. It is just missing the
+# SQL code. Put your SQL query in between the triple quotation marks to create the query. The records will be stored in 'results', which is a polars data frame
+
+q1 = """
+SELECT 
+    playerID, 
+    yearID, 
+    (CAST(H AS FLOAT) / AB) AS batting_avg
+FROM batting
+WHERE AB >= 1
+ORDER BY batting_avg DESC, playerID ASC
+LIMIT 5
+    """
+results1 = pl.read_database(q1, con)
+results1
+
+
+```
+
+
+## QUESTION 2
+
+__Use the same query as above, but only include players with at least 10 at bats that year. Print the top 5 results.__  
+
+_Increasing the threshold to 10 at-bats at least gets rid of the so called "perfect" batters, but still doesn't show us the most representative players over their entire careers. Nyls Nyman had a .643 average over one season, but only batted a few times that year, so despite his high average, it doesn't show his overall performance._
+
+```{python}
+q2 = """
+SELECT 
+    playerID, 
+    yearID, 
+    (H * 1.0 / AB) AS batting_avg
+FROM batting
+WHERE AB >= 10
+ORDER BY batting_avg DESC, playerID ASC
+LIMIT 5
+"""
+results2 = pl.read_database(q2, con)
+results2
+```
+
+
+## QUESTION 3
+
+__Now modify the SQL query to calculate the batting average for players over their entire careers (all years combined). Only include players with at least 100 at bats over their entire career, and print the top 5 results.__
+
+_Raising our minimum threshold to 100 at bats over a player's entire career helps us filter out players who may have had a few great seasons but didn't play enough games overall to be considered truly representative. It instead shows us the most consistent performers over their entire careers, like Ty Cobb's record .366 average over his career._
+
+```{python}
+q3 = """
+SELECT 
+    playerID, 
+    SUM(H) * 1.0 / SUM(AB) AS career_ba
+FROM batting
+GROUP BY playerID
+HAVING SUM(AB) >= 100
+ORDER BY career_ba DESC, playerID ASC
+LIMIT 5
+"""
+results3 = pl.read_database(q3, con)
+results3
+```

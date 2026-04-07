@@ -1,0 +1,122 @@
+---
+title: "Longevity and Highest Paid Positions"
+subtitle: "Unit 3 Stretch"
+author: "Sydney Ahlstrom Sanders"
+format:
+  html:
+    self-contained: true
+    page-layout: full
+    title-block-banner: true
+    toc: true
+    toc-depth: 3
+    toc-location: body
+    number-sections: false
+    html-math-method: katex
+    code-fold: true
+    code-summary: "Show the code"
+    code-overflow: wrap
+    code-copy: hover
+    code-tools:
+        source: false
+        toggle: true
+        caption: See code
+execute: 
+  warning: false
+    
+---
+
+```{python}
+import polars as pl
+import numpy as np
+import sqlite3
+from lets_plot import *
+
+LetsPlot.setup_html(isolated_frame=True)
+```
+
+
+```{python}
+# Learn morea about Code Cells: https://quarto.org/docs/reference/cells/cells-jupyter.html
+
+# Include and execute your code here
+sqlite_file = 'lahmansbaseballdb.sqlite'
+# this file must be in the same location as your .qmd or .py file
+con = sqlite3.connect(sqlite_file)
+```
+
+## QUESTION 1
+
+1. Identify the top 10 players with the longest Major League Baseball careers. Include their playerID, first_name, last_name, career_length
+
+_Nick Altrock holds the longest career in this dataset at 35 years. This is a unique case in baseball history, as he had a long gap between his primary pitching years and several hitting appearances later on. Nolan Ryan appears in the top 10 as well, with a 27 year career, showing his status as one of the most durable players in the sport. Only 4 players exceed the 30 year mark, showing how rare that longevity is in professional sports._
+
+```{python}
+people = pl.read_database("SELECT playerID, nameFirst, nameLast, debut, finalGame FROM people", con)
+
+longest_careers = (
+    people
+    .with_columns([
+        pl.col("debut").str.to_date("%Y-%m-%d", strict=False).dt.year().alias("start_year"),
+        pl.col("finalGame").str.to_date("%Y-%m-%d", strict=False).dt.year().alias("end_year")
+    ])
+    .with_columns(
+        (pl.col("end_year") - pl.col("start_year")).alias("career_length")
+    )
+    .filter(pl.col("career_length").is_not_null())
+    .sort("career_length", descending=True)
+    .select([
+        pl.col("playerID"),
+        pl.col("nameFirst").alias("first_name"),
+        pl.col("nameLast").alias("last_name"),
+        pl.col("career_length")
+    ])
+    .head(10)
+)
+
+print(longest_careers)
+```
+
+
+## QUESTION 2
+
+2. Write an SQL query that pulls the tables you need into a polars dataframe. Then, use python polars to create a summary table showing the average salary for each position (e.g., pitcher, catcher, outfielder). Position information can be found in the fielding table in the POS column. Include the following columns: position, average_salary, total_players, highest_salary. The highest_salary column should display the highest salary ever earned by a player in that position. Additionally, add a new column to the summary table you just created to label the average salary: if the average salary is above $3 million, categorize it as “High Salary”; if the average salary is between $2 million and $3 million, categorize it as “Medium Salary”; otherwise, categorize it as “Low Salary.” Order the table by average salary in descending order.
+
+_The "High Salary" position is first base, which stands out as the highest paid position on average at roughly $3.3 million. While pitchers have one of the highest individual salaries ever earned ($33M), their average salary is only $1.9M due to the volume of players in that position. Catchers have one of the lowest average salaries at $1.4M due to their iffensive production being lower than infielders or outfielders, and it usually has a high physical toll on them leading to shorter careers. The "Medium Salary" bracket includes mainly outfielders, third basemen, and shortstops, all averaging between $2M-$3M._
+
+```{python}
+fielding = pl.read_database("SELECT playerID, yearID, POS, G FROM fielding", con)
+salaries = pl.read_database("SELECT playerID, yearID, salary FROM salaries", con)
+
+
+primary_positions = (
+    fielding
+    .sort("G", descending=True)
+    .group_by(["playerID", "yearID"])
+    .first() 
+)
+
+
+salary_summary = (
+    salaries
+    .join(primary_positions, on=["playerID", "yearID"], how="inner")
+    .group_by("POS")
+    .agg([
+        pl.col("salary").mean().alias("average_salary"),
+        pl.col("playerID").n_unique().alias("total_players"),
+        pl.col("salary").max().alias("highest_salary")
+    ])
+
+    .with_columns(
+        pl.when(pl.col("average_salary") > 3_000_000)
+        .then(pl.lit("High Salary"))
+        .when(pl.col("average_salary").is_between(2_000_000, 3_000_000))
+        .then(pl.lit("Medium Salary"))
+        .otherwise(pl.lit("Low Salary"))
+        .alias("salary_category")
+    )
+    .sort("average_salary", descending=True)
+    .rename({"POS": "position"})
+)
+
+print(salary_summary)
+```

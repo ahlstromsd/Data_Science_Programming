@@ -1,7 +1,7 @@
 ---
-title: "Client Report - [Insert Project Title]"
-subtitle: "Course DS 250"
-author: "[STUDENT NAME]"
+title: "Client Report - Missing values"
+subtitle: "Unit 2 Task 3"
+author: "Sydney Ahlstrom Sanders"
 format:
   html:
     self-contained: true
@@ -25,4 +25,87 @@ execute:
     
 ---
 
-### Paste in a template
+```{python}
+import polars as pl
+import requests #new for reading in JSON
+import io       #new for reading in JSON
+import numpy as np
+from lets_plot import *
+
+LetsPlot.setup_html(isolated_frame=True)
+```
+
+
+```{python}
+url = "https://raw.githubusercontent.com/byuidatascience/data4missing/master/data-raw/flights_missing/flights_missing.json"
+response = requests.get(url)
+df = pl.read_json(io.BytesIO(response.content))
+```
+
+## QUESTION 1
+
+1. __Convert values to missing__ Start with a fresh copy of the flights dataset by reading it in from the link provided above (as opposed to starting with the dataset you ended with in the last assignment). Identify data values that are problematic, non-sense or impossible and change them to be missing. In your report include one record example (one row) from your clean data, in the raw JSON format. Your example should display at least one missing value so that we can verify it was done correctly. (Note: JSON will convert NaN's to null). Describe your process for finding values that needed to be changed, and how you changed them.
+
+_There were several problematic values in the dataset that needed to be converted to missing values. These included "-999", "1500+", and "n/a". The code below identifies these values and converts them to null (None) in the dataset to make calculating the mean and median values more accurate._
+
+```{python}
+import json
+
+bad_values = ["-999", "1500+", "n/a"]
+
+df_clean = df.with_columns([
+    pl.when(pl.col(name).cast(pl.Utf8).is_in(bad_values))
+    .then(None)
+    .otherwise(pl.col(name))
+    .alias(name) 
+    for name in df.columns
+])
+
+example_row = df_clean.filter(pl.col("num_of_delays_total").is_null()).head(1)
+
+print(json.dumps(example_row.to_dicts(), indent=4))
+```
+
+## QUESTION 2
+
+2. __Filling in missing data__ For all the "minutes_delayed" columns, fill in any missing values with the median of that column. For the "num_of" columns, fill in missing values with that column's mean.
+
+_Nothing to write/report for this question_
+
+```{python}
+df_filled = df_clean.with_columns([
+    pl.col("^minutes_delayed.*$").cast(pl.Float64).fill_null(pl.col("^minutes_delayed.*$").cast(pl.Float64).median()),
+    pl.col("^num_of.*$").cast(pl.Float64).fill_null(pl.col("^num_of.*$").cast(pl.Float64).mean())
+])
+
+print(f"Mean num_of_delays_carrier: {df_filled['num_of_delays_carrier'].mean():.2f}")
+print(f"Mean minutes_delayed_nas: {df_filled['minutes_delayed_nas'].mean():.2f}")
+```
+
+## QUESTION 3
+ 
+3. __Display a histogram for num_of_delays_carrier and for minutes_delayed_nas (2 separate histograms in total). Comment on the shape of each one. Also report the mean of each of these columns now that missing values have been filled in.__
+
+_The histograms show that the distribution of carrier delays is multimodal and right-skewed, with most flights having a small number of delays. There is also a spike around the 700 mark, which corresponds with where we filled the missing values with the mean. The distribution of NAS delay minutes is also right-skewed, with most flights having low delay times._
+
+```{python}
+hist1 = (
+    ggplot(df_filled, aes(x='num_of_delays_carrier')) 
+    + geom_histogram(bins=30, fill="steelblue", color="white")
+    + labs(title="Distribution of Carrier Delays", x="Number of Delays", y="Frequency")
+    + theme_minimal2()
+)
+
+hist2 = (
+    ggplot(df_filled, aes(x='minutes_delayed_nas')) 
+    + geom_histogram(bins=30, fill="darkorange", color="white")
+    + labs(title="Distribution of NAS Delay Minutes", x="Minutes Delayed", y="Frequency")
+    + theme_minimal2()
+)
+
+hist1.show()
+hist2.show()
+
+print(f"Mean num_of_delays_carrier: {df_filled['num_of_delays_carrier'].mean():.2f}")
+print(f"Mean minutes_delayed_nas: {df_filled['minutes_delayed_nas'].mean():.2f}")
+```

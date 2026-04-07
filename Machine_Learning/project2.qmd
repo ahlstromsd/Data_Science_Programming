@@ -1,7 +1,7 @@
 ---
-title: "Client Report - [Insert Project Title]"
-subtitle: "Course DS 250"
-author: "[STUDENT NAME]"
+title: "Client Report -How good is it, really?"
+subtitle: "Unit 4 Task 2"
+author: "Sydney Ahlstrom Sanders"
 format:
   html:
     self-contained: true
@@ -25,4 +25,122 @@ execute:
     
 ---
 
-### Paste in a template
+```{python}
+import polars as pl
+import numpy as np
+from lets_plot import *
+from sklearn.model_selection import train_test_split
+from sklearn import metrics
+# add the additional libraries you need to import for ML here
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.inspection import permutation_importance
+import pandas as pd
+
+LetsPlot.setup_html(isolated_frame=True)
+```
+
+
+```{python}
+# import your data here using polars and the URL
+url = "https://github.com/byuidatascience/data4dwellings/raw/master/data-raw/dwellings_ml/dwellings_ml.csv"
+dwellings = pl.read_csv(url)
+
+print(dwellings.head())
+
+```
+
+## QUESTION 1
+
+1. __Describe the quality of your classification model using 2-3 different evaluation metrics.__ You also need to explain how to define/interpret each of the evaluation metrics you use.  
+
+_The Random Forest Model shows high accuracy and quality with three metrics: accuracy (92.4%), balanced accuracy (92%), and F1 score (93.9%). Accuracy measures the overall proportion of correct guesses. Balanced accuracy is used when the dataset might contain more of one type of housing than the other, so it shows whether the model is equally good at identifying both pre and post 1980 homes. The high F1 score means there's a good balance between the precision and recall, meaning it rarely misclassifies modern homes as old (and vice versa), so it is overall a reliable tool for the Colorado health department's safety screenings._
+
+```{python}
+# Include and execute your code here
+# Don't forget, you need another import statement to import the desired ML model from sklearn
+dwellings = dwellings.with_columns(
+    before1980 = pl.when(pl.col("yrbuilt") < 1980).then(1).otherwise(0)
+)
+
+X = dwellings.drop(["before1980", "yrbuilt", "parcel"], strict=False)
+y = dwellings["before1980"]
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X.to_pandas(), y.to_pandas(), test_size=0.20, random_state=42
+)
+
+
+rf = RandomForestClassifier(n_estimators=100, max_depth=15, random_state=42, class_weight='balanced')
+rf.fit(X_train, y_train)
+y_pred = rf.predict(X_test)
+
+
+print(f"Accuracy: {metrics.accuracy_score(y_test, y_pred):.3f}")
+print(f"Balanced Accuracy: {metrics.balanced_accuracy_score(y_test, y_pred):.3f}")
+print(f"F1 Score: {metrics.f1_score(y_test, y_pred):.3f}")
+```
+
+
+## QUESTION 2
+
+2. __Justify your classification model by discussing the most important features selected by your model.__ This discussion should include a plot of permutation importance values for the most important features. Were there any features you thought would be important but weren't?
+
+_Features like live area and one story were the most critical, shuffling them caused the biggest drop in accuracy because they represent bigger shifts in Denver's architectural history. I expected number of baths to be a top predictor, but it ranked lower than square footage and sales price, which now that I think about the market pricing over the years does make sense to me._
+
+```{python}
+# Include and execute your code here
+result = permutation_importance(rf, X_test.iloc[:500], y_test.iloc[:500], n_repeats=10, random_state=42)
+
+
+perm_data = pd.DataFrame({
+    'feature': X_test.columns,
+    'importance': result.importances_mean
+}).sort_values('importance', ascending=False).head(10)
+
+
+ggplot(perm_data, aes(x='importance', y='feature', fill='importance')) + \
+    geom_bar(stat='identity') + \
+    labs(title="Permutation Importance (Top 10 Features)", x="Decrease in Accuracy when Shuffled")
+```
+
+## QUESTION 3
+
+3. __For the 3 most important features, explain their relationship to the target variable. Use a plot to illustrate the relationship.__ (3 plots minimum)
+
+_The three most significant features, live area, number of baths, and one story, show clear shifts that define the pre/post 1980 housing styles. The scatter plot for living area shows an upward trend over time, as does the number of baths, showing that homes were larger and had more bathrooms generally after 1980. The architechural style also shows how one story homes were far more popular before 1980, so we know the model is making predictions based on the real data rather than random guesses._
+
+```{python}
+# Include and execute your code here
+df_plot_q3 = (
+    dwellings
+    .rename({"arcstyle_ONE-STORY": "one_story"})
+    .to_pandas()
+)
+
+
+df_plot_q3['before1980_str'] = df_plot_q3['before1980'].astype(str)
+df_plot_q3['one_story_str'] = df_plot_q3['one_story'].astype(str)
+
+
+p1 = ggplot(df_plot_q3, aes(x='yrbuilt', y='livearea')) + \
+    geom_point(alpha=0.1, color='gray') + \
+    geom_smooth(method='loess', color='blue') + \
+    geom_vline(xintercept=1980, linetype='dashed', color='red') + \
+    labs(title="Relationship: Living Area over Time")
+
+
+p2 = ggplot(df_plot_q3, aes(x='before1980_str', y='numbaths', fill='before1980_str')) + \
+    geom_boxplot() + \
+    labs(title="Relationship: Number of Baths (Pre vs Post 1980)")
+
+
+p3 = ggplot(df_plot_q3, aes(x='before1980_str', fill='one_story_str')) + \
+    geom_bar(position='fill') + \
+    labs(title="Relationship: Proportions of One-Story Homes", 
+         x="Pre-1980 Status", 
+         fill="Is One-Story?")
+
+p1.show()
+p2.show()
+p3.show()
+```

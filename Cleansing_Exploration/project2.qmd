@@ -1,7 +1,7 @@
 ---
-title: "Client Report - [Insert Project Title]"
-subtitle: "Course DS 250"
-author: "[STUDENT NAME]"
+title: "Client Report - What's in a Name?"
+subtitle: "Unit 1 Task 2"
+author: "Sydney Ahlstrom Sanders"
 format:
   html:
     self-contained: true
@@ -20,9 +20,135 @@ format:
         source: false
         toggle: true
         caption: See code
-execute: 
-  warning: false
+execute:
+    kernel: Python311
+    warning: false
     
 ---
 
-### Paste in a template
+```{python}
+import polars as pl
+import numpy as np
+from lets_plot import *
+
+LetsPlot.setup_html(isolated_frame=True)
+```
+
+```{python}
+# Learn morea about Code Cells: https://quarto.org/docs/reference/cells/cells-jupyter.html
+
+# Include and execute your code here
+df = pl.read_csv("https://posit.byui.edu/content/0d43d66f-d3b7-4c43-8c36-52e3ed69e7f1/names_year_csv.csv")
+```
+
+## QUESTION 1
+
+<!-- Make sure at least one of your charts includes reference marks!! -->
+
+__How does your name at your birth year compare to its use historically? Your must provide a chart. The years labels on your charts should not include a comma.__ 
+
+_Sydney was hardly used at all until around 1985 when its popularity skyrocketed. It peaked in use around 200, meaning in 2001 it started its decline from popularity, but was still one of the top three years for that name being used._
+
+```{python}
+# Filter data
+my_name = "Sydney"
+birth_year = 2001
+name_data = (df
+    .filter(pl.col('name') == my_name)
+    .select(['year', 'Total'])
+    .group_by('year')
+    .sum()
+    .sort('year')
+)
+
+# Convert 'year' to integer to avoid type mismatch
+name_data = name_data.with_columns(pl.col('year').cast(pl.Int64))
+
+# Get the value for birth year
+birth_year_value = name_data.filter(pl.col('year') == birth_year)['Total'][0]
+
+# Create line chart with Lets-Plot
+(
+    ggplot(name_data, aes(x='year', y='Total')) +
+    geom_line(color='#1f77b4') +
+    geom_vline(xintercept=birth_year, linetype='dashed', color='red', size=1) +
+    geom_point(x=birth_year, y=birth_year_value, color='red', size=3) +
+    ggtitle(f"Usage of Name '{my_name}' Over Time") +
+    xlab("Year") +
+    ylab("Number of Babies Named") +
+    scale_x_continuous(format='d')
+)
+```
+
+
+## QUESTION 2
+
+__Think of a unique name from a famous movie. Plot the usage of that name and see how changes line up with the movie release. Does it look like the movie had an effect on usage?__  
+
+_I used the name Forrest from Forrest Gump. The name was actually pretty popular between 1910 and 1970, where it started to dwindle off. When the movie came out in 1994 its popularity went higher than ever before. Only a few years later though it became less popular than it had ever been, but it's slowly been making a comeback since 2010._
+
+```{python}
+# Filter data for Forrest
+forrest_data = (df
+    .filter(pl.col('name') == 'Forrest')
+    .select(['year', 'Total'])
+    .group_by('year')
+    .sum()
+    .sort('year')
+)
+
+# Convert 'year' to integer
+forrest_data = forrest_data.with_columns(pl.col('year').cast(pl.Int64))
+
+# Get the value for 1994
+movie_year_value = forrest_data.filter(pl.col('year') == 1994)['Total'][0]
+
+# Create line chart
+(
+    ggplot(forrest_data, aes(x='year', y='Total')) +
+    geom_line(color='#9467bd') +
+    geom_vline(xintercept=1994, linetype='dashed', color='red', size=1) +
+    geom_point(x=1994, y=movie_year_value, color='red', size=3) +
+    ggtitle("Usage of Name 'Forrest' Over Time") +
+    xlab("Year") +
+    ylab("Number of Babies Named Forrest") +
+    scale_x_continuous(format='d')
+)
+```
+
+## QUESTION 3
+
+__Mary, Martha, Peter, and Paul are all Christian names. From 1920 - 2000, compare the name usage of each of the four names in a single chart. What trends do you notice?__  
+
+_Before 1960, Mary was used almost 7 times more often than any of the other names, but it fell off sharply, and by 2000 was about as common as the other names. Peter and Martha have both remained relatively steady around 5000 babies named that per year, but Paul has a short period from 1945-1970 where it spiked higher than those two before it went back to around the same level as them again._
+
+```{python}
+# Filter Data
+names = ['Mary', 'Martha', 'Peter', 'Paul']
+name_year_data = (df
+    .filter(
+        (pl.col('name').is_in(names)) & 
+        (pl.col('year') >= 1920) & 
+        (pl.col('year') <= 2000)
+    )
+    .select(['name', 'year', 'Total'])
+    .group_by(['name', 'year'])
+    .sum()
+    .sort('year')
+)
+
+# Convert 'year' to integer
+name_year_data = name_year_data.with_columns(pl.col('year').cast(pl.Int64))
+
+# Create line chart
+(
+    ggplot(name_year_data, aes(x='year', y='Total', color='name')) +
+    geom_line(size=1) +
+    geom_vline(xintercept=1960, linetype='dashed', color='black', size=1) +
+    ggtitle("Usage of Names Mary, Martha, Peter, and Paul (1920-2000)") +
+    xlab("Year") +
+    ylab("Number of Babies Named") +
+    scale_x_continuous(format='d') +
+    scale_color_manual(values=['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728'])
+)
+```
